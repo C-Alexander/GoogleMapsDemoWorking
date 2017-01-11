@@ -1,0 +1,49 @@
+@model GoogleMapsDemoWorking.Models.GoogleMapsDemoModels.CoordinateModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h2>Edit</h2>
+
+<form asp-action="Edit">
+    <div class="form-horizontal">
+        <h4>CoordinateModel</h4>
+        <hr />
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="ID" />
+        <div class="form-group">
+            <label asp-for="Latitude" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Latitude" class="form-control" />
+                <span asp-validation-for="Latitude" class="text-danger" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Longitude" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Longitude" class="form-control" />
+                <span asp-validation-for="Longitude" class="text-danger" />
+            </div>
+        </div><div class="form-group">
+    <label asp-for="SectorView" class="col-md-2 control-label"></label>
+    <div class="col-md-10">
+        <input asp-for="SectorView" class="form-control" />
+        <span asp-validation-for="SectorView" class="text-danger" />
+    </div>
+</div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

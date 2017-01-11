@@ -1,0 +1,123 @@
+﻿@using GoogleMapsDemoWorking.Models.GoogleMapsDemoModels
+@{
+    ViewData["Title"] = "Rails 1 - the other fuckers are getting a DMCA takedown notice";
+}
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<body>
+    <div id="map"></div>
+<script>
+    var isCreatingSector = false;
+    var newSector;
+    var map;
+    var allNewSectors;
+    var addTrainEnabled = false;
+
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'),
+        {
+            center: { lat: 52.348629, lng: 4.853338 },
+            zoom: 18,
+            disableDefaultUI: true,
+            draggable: false,
+            scaleControl: false,
+            mousewheel: false,
+            disableDoubleClickZoom: true
+        });
+        map.addListener('click', addSector);
+
+        @foreach (SectorViewModel s in (List<SectorViewModel>) ViewBag.Sectors) { 
+            @:var dbSector = new google.maps.Polyline({
+            @:        strokeColor: 'blue',
+            @:        strokeOpacity: 1.0,
+            @:        strokeWeight: 2
+            @:    }); @*This is where I create new sectors. You can test it yourself, the website is public!*@
+            @:    dbSector.setMap(map);
+            foreach (CoordinateModel c in s.Coordinates)
+            {
+                @: dbSector.getPath.push({ lat: @c.Latitude, lng: @c.Longitude });
+            }
+            @:    dbSector.addListener('click', addTrain);
+        }
+    }
+    function addSector(event) {
+        if (isCreatingSector) { @*The cause? I copied some bad code, then wrote it again myself, writing it correctly in camelcase, was like "wait wtf the example had capitals first, fine ill copy
+                                    that. Not sure why I did that AFTER testing though!*@
+            console.log("Lat: " + event.latLng.lat() + " Lng: " + event.latLng.lng());
+            newSector.getPath().push(event.latLng); @*If you check this, it's "pushing" to a path. This is a "Stack" datastructure. It's amazing. Google it! Basically..
+
+                                                        Imagine a "stack" of plates, like in a restaurant... It fits neatly in one of those "holes" with a spring beneath it. You push one on top,
+                                                        pushing the rest down. Or you pull one off, putting the one beneath it on top. Makes sense?*@
+        } @*We're listening to all clicks there... but can a train really be on the middle of the map? I'd argue: NO!*@
+    }
+
+    function addTrain(event) {
+        if (addTrainEnabled) {
+            @*The question is if we can find the latlng there... is it not? Since we're listening to an entire poly, it wont really know what part of the path to take.*@
+            @*Let's just assume all trains enter the sector at the first point, it simplifies things a bit but gets the message through.*@
+            //Google Maps has a type named marker.. we want that. Sorry, my memory is aweful, I miss autocorrect
+            var marker = new google.maps.Marker({
+                @*Basically it. Kind of. Marker exists now. Does very little though.*@
+                @*Lets give it a place. Literally.*@
+                position: event.latLng,
+                @*I wonder. Most stacks have some sort of peek function or the likes, wonder if this one does... *@
+                @*Well it didnt like that! Sorry. The issue was that I typed getPath to GetPath after seeing some example code, after originally rewriting it to getPath from GetPath after fooling *@
+                title: "Tram!",
+                @*Debugging is part of the process!*@
+                map: map
+            })
+            @*CUTE!*@
+            @*One issue though, it cant be turned off now! Whoops!*@
+            @*I Just wasted an ungodly amount of time not noticing I missed a "new". With C#, it would be put there automatically or you'd know in seconds. With JS, it's luck mostly. :)*@
+        }
+    }
+</script>
+<button type="button" id="sectorCreateButton" class="btn btn-primary">Create Sector</button>
+<button type="button" id="sectorSaveButton" class="btn btn-primary">Save Sectors</button> @*So right, we want to let people add trains... first we need a button. "Add Train", right?*@
+<button type="button" id="addTrainButton" class="btn btn-primary">Add a train</button> @*Bootstrap! It absolutely rocks, it'll look good too... *@
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBfNc_p6ton0bopX-I5WeAyYQdypDNphbc&callback=initMap"
+        async defer></script>
+<script>
+    $('#sectorCreateButton').click(
+        function () {
+            $('#sectorCreateButton').toggleClass("btn-primary");
+            $('#sectorCreateButton').toggleClass("btn-danger"); @*JQuery! I use it to dirtily adjust the button. Would be better to also change the text, but again, demo!*@
+            if (isCreatingSector) {
+                isCreatingSector = false;
+            } else {
+                isCreatingSector = true;
+                allNewSectors += newSector = new google.maps.Polyline({
+                    strokeColor: 'blue',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2
+                }); @*This is where I create new sectors. You can test it yourself, the website is public!*@
+                newSector.setMap(map);
+                newSector.addListener('click', addTrain); @*Listener - same as C# but more dirty. Learn to hate Javascript, I know I do!*@
+            } @*Thats it! At this point you can do anything. Imagine! 
+                  If you know the train speed, and the sector length, you could for example make the train travel, say: 
+                  marker.position = (sectorpoint a - sectorpoint b / length * max speed) - a sleep timer of say, 1 second (if the speed is meter per second)*@
+        })
+    $('#addTrainButton').click(
+       function () {
+           $('#addTrainButton').toggleClass("btn-primary");
+           $('#addTrainButton').toggleClass("btn-danger"); @*JQuery! I use it to dirtily adjust the button. Would be better to also change the text, but again, demo!*@
+           if (addTrainEnabled) {
+               addTrainEnabled = false;
+           } else {
+               addTrainEnabled = true;
+           }
+    })
+    $('#sectorSaveButton').click(
+    function () {
+        $('#sectorSaveButton').toggleClass("btn-primary");
+        $('#sectorSaveButton').toggleClass("btn-danger");
+        @{List<SectorViewModel> sectors = new List<SectorViewModel>();}
+        for (var s in allNewSectors)
+        {
+            @*@sectors.*@
+            }
+            $('#sectorSaveButton').toggleClass("btn-danger");
+            $('#sectorSaveButton').toggleClass("btn-success");
+        }) @*This is done quick and dirty with EF2. Don't worry about that. Saving isn't quite in but the concept is simple - use AJAX for a post request. The logic behind it however may be a bit
+               overboard for a demo of the google maps api...*@
+</script>
+</body>
